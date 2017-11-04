@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">FLAVORADI</string>
+    <string name="start">Start</string>
+    <string name="signIn">Sign In</string>
+    <string name="signUp">Sign Up</string>
+    <string name="longText">Under Construction</string>
+    <string name="action_settings">Settings</string>
+    <string name="welcome_message">Use the power of social media to find out what\npeople are sharing about the restaurants nearby</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="title_activity_add_restaurant">AddRestaurantActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="settings">Settings</string>
+    <string name="signout">Sign Out</string>
+    <string name="add_my_restaurant">Add My Restaurant</string>
+</resources>
