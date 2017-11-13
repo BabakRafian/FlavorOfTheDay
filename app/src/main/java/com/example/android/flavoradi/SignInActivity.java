@@ -22,7 +22,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
 
-        trendingListIntent = new Intent(this,TrendingListActivity.class);
+        trendingListIntent = new Intent(this,TrendingListActivityBeta.class);
         signInButton =(Button)findViewById(R.id.signIn_button);
         signInButton.setOnClickListener(onClickListener);
 

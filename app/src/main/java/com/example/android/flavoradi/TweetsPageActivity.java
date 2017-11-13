@@ -36,7 +36,7 @@ public class TweetsPageActivity extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        adapter = new TweetsAdapter(this.getBaseContext());
+        adapter = new TweetsAdapter(this.getBaseContext(),getIntent().getStringExtra("token"));
         recyclerView.setAdapter(adapter);
     }
 

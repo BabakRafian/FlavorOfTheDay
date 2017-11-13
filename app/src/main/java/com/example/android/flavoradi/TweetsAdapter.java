@@ -30,9 +30,11 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             "Item eight details"};
 
     private final Context context;
+    private final String title;
 
-    public TweetsAdapter(Context context) {
+    public TweetsAdapter(Context context, String name) {
         this.context = context;
+        this.title = name;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder{
@@ -67,7 +69,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        viewHolder.itemTitle.setText(titles[i]);
+        viewHolder.itemTitle.setText(title);
         viewHolder.itemDetail.setText(details[i]);
     }
 
