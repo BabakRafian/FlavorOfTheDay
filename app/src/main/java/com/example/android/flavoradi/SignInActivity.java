@@ -19,8 +19,8 @@ public class SignInActivity extends AppCompatActivity {
     private Button signInButton, signUpButton;
     DatabaseHelper mDatabaseHelper = new DatabaseHelper(this, null, null, 1);
     EditText username, password;
-    //SharedPreferences preferences = getSharedPreferences("MYPREFS", MODE_PRIVATE);
-    //SharedPreferences.Editor editor = preferences.edit();
+    // SharedPreferences preferences = getSharedPreferences("FLAVORADI", MODE_PRIVATE);
+    // SharedPreferences.Editor editor = preferences.edit();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,7 @@ public class SignInActivity extends AppCompatActivity {
             switch(v.getId()){
                 case R.id.signIn_button:
                     if (mDatabaseHelper.authenticate(username.getText().toString(), password.getText().toString())) {
+                       // editor.putString("currentUser", username.getText().toString());
                         startActivity(trendingListIntent);
                     } else {
                         toastMessage("Invalid login credentials.");

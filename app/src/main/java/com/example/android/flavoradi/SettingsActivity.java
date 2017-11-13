@@ -1,6 +1,8 @@
 package com.example.android.flavoradi;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +17,8 @@ public class SettingsActivity extends AppCompatActivity {
     Intent addRestaurantIntent, signOutIntent;
     Button addRestaurantButton, signOutButton;
     private final String TAG = getClass().getSimpleName();
+    //SharedPreferences preferences = getSharedPreferences("FLAVORADI", MODE_PRIVATE);
+    //SharedPreferences.Editor editor = preferences.edit();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,9 +51,12 @@ public class SettingsActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.button_addrestaurant:
-                    startActivity(addRestaurantIntent);
+                    //startActivity(addRestaurantIntent);
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://support.google.com/maps/answer/6320846?co=GENIE.Platform%3DAndroid&hl=en"));
+                    startActivity(browserIntent);
                     break;
                 case R.id.button_signout:
+                    //editor.remove("currentUser");
                     startActivity(signOutIntent);
                     break;
             }
