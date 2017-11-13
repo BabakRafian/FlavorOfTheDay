@@ -43,7 +43,7 @@ public class AddRestaurantActivity extends AppCompatActivity {
         public void onClick(View v) {
             switch(v.getId()){
                 case R.id.button_addrestaurant:
-                    startActivity(settingsIntent);
+                    finish();
                     break;
             }
         }
