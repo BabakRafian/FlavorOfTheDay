@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.Cursor;
-import android.util.Log;
 
 /**
  * Created by Lyreks on 10/14/2017.
@@ -16,11 +15,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "flavoradi.db";
+
     private static final String TABLE_ACCOUNTS = "accounts";
-    private static final String COLUMN_ID = "_id";
+    private static final String COLUMN_ACCT_ID = "_id";
     private static final String COLUMN_USERNAME = "username";
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_PASSWORD = "password";
+
+    private static final String TABLE_FAVORITES = "favorites";
+    private static final String COLUMN_FAVE_ID = "_id";
+
+    private static final String TABLE_RESTAURANTS = "restaurants";
+    private static final String COLUMN_REST_ID = "_id";
+    private static final String COLUMN_RESTNAME = "restname";
+    private static final String COLUMN_TOTAL_TWEETS = "total_tweets";
+    private static final String COLUMN_NUM_UPDATED = "num_updated";
+
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super (context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -29,10 +39,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         String query = "CREATE TABLE " + TABLE_ACCOUNTS + "(" +
-                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_ACCT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_USERNAME + " TEXT, " +
                 COLUMN_EMAIL + " TEXT, " +
                 COLUMN_PASSWORD + " TEXT" +
+                ");";
+        db.execSQL(query);
+        query = "CREATE TABLE " + TABLE_RESTAURANTS + "(" +
+                COLUMN_REST_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_RESTNAME + " TEXT, " +
+                COLUMN_TOTAL_TWEETS + " INTEGER, " +
+                COLUMN_NUM_UPDATED + " INTEGER" +
+                ");";
+        db.execSQL(query);
+        query = "CREATE TABLE " + TABLE_FAVORITES + "(" +
+                COLUMN_FAVE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_USERNAME + " TEXT, " +
+                COLUMN_RESTNAME + " TEXT" +
                 ");";
         db.execSQL(query);
     }
@@ -40,6 +63,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         String upgradeTable = "DROP IF TABLE EXISTS " + TABLE_ACCOUNTS;
+        db.execSQL(upgradeTable);
+        upgradeTable = "DROP IF TABLE EXISTS " + TABLE_RESTAURANTS;
+        db.execSQL(upgradeTable);
+        upgradeTable = "DROP IF TABLE EXISTS " + TABLE_FAVORITES;
         db.execSQL(upgradeTable);
         onCreate(db);
     }
@@ -60,11 +87,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getWritableDatabase();
         String query = "DELETE FROM " + TABLE_ACCOUNTS + " WHERE " + COLUMN_USERNAME + "=\"" + accountUsername + "\";";
         db.execSQL(query);
+        db.close();
     }
 
     // Checks username and password combination against existing entries in database (accounts table)
     public boolean authenticate(String username, String password) {
-        boolean result;
+        boolean result = false;
         SQLiteDatabase db = getReadableDatabase();
         String[] columns = {COLUMN_USERNAME, COLUMN_PASSWORD};
         String selection = "username =?";
@@ -78,13 +106,127 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
             if (username.equals(cursor.getString(iUsername)) && password.equals(cursor.getString(iPassword))) {
                 result = true;
-            } else {
-                result = false;
             }
-        } else {
-            result = false;
         }
         cursor.close();
+        db.close();
         return result;
     }
+
+    // Adds favorite to the database (favorites table)
+    public void addFavorite(Account account, Restaurant restaurant) {
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = getWritableDatabase();
+        values.put(COLUMN_USERNAME, account.get_username());
+        values.put(COLUMN_RESTNAME, restaurant.get_restname());
+        db.insert(TABLE_FAVORITES, null, values);
+        db.close();
+    }
+
+    // Removes favorite from the database (favorites table)
+    public void deleteFavorite(String accountUsername, String restaurantName) {
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_FAVORITES + " WHERE " + COLUMN_USERNAME + "=\"" + accountUsername + "\"" +
+                " AND " + COLUMN_RESTNAME + "=\"" + restaurantName + "\";";
+        db.execSQL(query);
+        db.close();
+    }
+
+    // Checks if user has favorite for specified restaurant
+    public boolean isFavorite(String accountUsername, String restaurantName) {
+        boolean result = false;
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {COLUMN_USERNAME, COLUMN_RESTNAME};
+        String selection = "username =?";
+        String[] selectionArgs = {accountUsername};
+
+        Cursor cursor = db.query(TABLE_FAVORITES, columns, selection, selectionArgs, null, null, null, null);
+        int iUsername = cursor.getColumnIndex(COLUMN_USERNAME);
+        int iRestname = cursor.getColumnIndex(COLUMN_RESTNAME);
+
+        if ((cursor != null) && (cursor.getCount() > 0)) {
+            cursor.moveToFirst();
+            if (accountUsername.equals(cursor.getString(iUsername)) && restaurantName.equals(cursor.getString(iRestname))) {
+                result = true;
+            }
+        }
+        cursor.close();
+        db.close();
+        return result;
+    }
+
+    // Adds restaurant to the database (restaurant table)
+    public void addRestaurant(Restaurant restaurant) {
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = getWritableDatabase();
+        values.put(COLUMN_RESTNAME, restaurant.get_restname());
+        values.put(COLUMN_TOTAL_TWEETS, restaurant.get_total_tweets());
+        values.put(COLUMN_NUM_UPDATED, restaurant.get_num_updated());
+        db.insert(TABLE_RESTAURANTS, null, values);
+        db.close();
+    }
+
+    // Removes restaurant from the database (restaurant table)
+    public void deleteRestaurant(String restaurantName) {
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_RESTAURANTS + " WHERE " + COLUMN_RESTNAME + "=\"" + restaurantName + "\";";
+        db.execSQL(query);
+        db.close();
+    }
+
+    // Checks if user has favorite for specified restaurant
+    public boolean isRestaurant(String restaurantName) {
+        boolean result = false;
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {COLUMN_RESTNAME};
+        String selection = "restname =?";
+        String[] selectionArgs = {restaurantName};
+
+        Cursor cursor = db.query(TABLE_RESTAURANTS, columns, selection, selectionArgs, null, null, null, null);
+        int iRestname = cursor.getColumnIndex(COLUMN_RESTNAME);
+
+        if ((cursor != null) && (cursor.getCount() > 0)) {
+            cursor.moveToFirst();
+            if (restaurantName.equals(cursor.getString(iRestname))) {
+                result = true;
+            }
+        }
+        cursor.close();
+        db.close();
+        return result;
+    }
+
+    // Gets restaurant data and creates Restaurant object
+    public Restaurant getRestaurant(String restaurantName) {
+        SQLiteDatabase db = getReadableDatabase();
+        Restaurant restaurant = new Restaurant();
+        String[] columns = {COLUMN_RESTNAME};
+        String selection = "restname =?";
+        String[] selectionArgs = {restaurantName};
+
+        Cursor cursor = db.query(TABLE_RESTAURANTS, columns, selection, selectionArgs, null, null, null, null);
+        int iRestname = cursor.getColumnIndex(COLUMN_RESTNAME);
+
+        if ((cursor != null) && (cursor.getCount() > 0)) {
+            cursor.moveToFirst();
+            if (restaurantName.equals(cursor.getString(iRestname))) {
+                restaurant.set_restname(cursor.getString(cursor.getColumnIndex(COLUMN_RESTNAME)));
+                restaurant.set_total_tweets(cursor.getInt(cursor.getColumnIndex(COLUMN_TOTAL_TWEETS)));
+                restaurant.set_num_updated(cursor.getInt(cursor.getColumnIndex(COLUMN_NUM_UPDATED)));
+            }
+        }
+        cursor.close();
+        db.close();
+        return restaurant;
+    }
+
+    // Updates total tweets associated with a restaurant
+    public void updateRestaurant(String restaurantName, int num_tweets) {
+        Restaurant restaurant = getRestaurant(restaurantName);
+        restaurant.update_total_tweets(num_tweets);
+        restaurant.increment_num_updated();
+        deleteRestaurant(restaurant.get_restname());
+        addRestaurant(restaurant);
+    }
+
 }
