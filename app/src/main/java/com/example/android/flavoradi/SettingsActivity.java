@@ -66,7 +66,7 @@ public class SettingsActivity extends AppCompatActivity {
                 case R.id.button_signout:
                     editor.remove("currentUser");
                     editor.commit();
-
+                    
                     startActivity(signOutIntent);
                     break;
             }
