@@ -3,6 +3,12 @@ package com.example.android.flavoradi.Utilities;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Base64;
+import android.util.Log;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,8 +18,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
 
 /**
  * Created by Babak on 11/10/2017.
@@ -27,12 +33,13 @@ import java.net.URLEncoder;
 public class OAuthTwitterApplicationOnlyService {
 
 
-    //private static Logger log = Logger.getLogger(String.valueOf(OAuthTwitterApplicationOnlyService.class));
     final static String TWITTER_CONSUMER_KEY = "kUlY7tH7LM3M8tp3paFJnMMzm";
     final static String TWITTER_CONSUMER_SECRET = "0GqIvlIFRw4SnPVvYgx5qgStzoaPTDKP53OzxIrDvI7wq15jnd";
     final static String URL_TWITTER_OAUTH2_TOKEN = "https://api.twitter.com/oauth2/token";
+    //final static  String URL = "GET /1.1/statuses/user_timeline.json?count=100&screen_name=twitterapi HTTP/1.1";
     final static String USERAGENT = "Flavoradi";
     private String applicationOnlyBearerToken;
+    private final String TAG = getClass().getSimpleName();
 
     public OAuthTwitterApplicationOnlyService() {
 
@@ -47,22 +54,6 @@ public class OAuthTwitterApplicationOnlyService {
         return applicationOnlyBearerToken;
     }
 
-    // Encodes the consumer key and secret to create the basic authorization key
-    private String encodeKeys(String consumerKey, String consumerSecret) {
-        try {
-            String encodedConsumerKey = URLEncoder.encode(consumerKey, "UTF-8");
-            String encodedConsumerSecret = URLEncoder.encode(consumerSecret, "UTF-8");
-            String fullKey = encodedConsumerKey + ":" + encodedConsumerSecret;
-            //String fullKey = consumerKey +":"+ consumerSecret;
-            byte[] encodedBytes = Base64.encode(fullKey.getBytes(), Base64.NO_WRAP);
-            String str = new String(encodedBytes);
-            return str;
-        }
-    catch (UnsupportedEncodingException e) {
-            return new String();
-        }
-    }
-
     // Constructs the request for requesting a bearer token and returns that token as a string
 
     private String requestBearerToken() throws Exception {
@@ -73,49 +64,6 @@ public class OAuthTwitterApplicationOnlyService {
                     "grant_type=client_credentials").get();
 
     }
-
-    // Writes a request to a connection
-    private static boolean writeRequest(HttpURLConnection connection, String textBody) throws IOException {
-        BufferedWriter wr = null;
-        try {
-            wr = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(),"UTF8"));
-            wr.write(textBody);
-            //wr.newLine();
-            wr.flush();
-
-            return true;
-        }
-        catch (IOException e) {
-            return false;
-        }
-        finally {
-            if (wr != null) {
-                wr.close();
-            }
-        }
-    }
-
-    // Reads a response for a given connection and returns it as a string.
-    private static String readResponse(HttpURLConnection connection) throws IOException {
-        BufferedReader br = null;
-        try {
-            StringBuilder str = new StringBuilder();
-
-            br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String line = "";
-            while((line = br.readLine()) != null) {
-                str.append(line + System.getProperty("line.separator"));
-            }
-            return str.toString();
-        }
-        catch (IOException e) { return ""; }
-        finally {
-            if (br != null) {
-                br.close();
-            }
-        }
-    }
-
     /**
      * Async Task that connects to the specified server URL with the specified JSON string.
      */
@@ -126,9 +74,10 @@ public class OAuthTwitterApplicationOnlyService {
 
             // The server's JSON response in string form.
             String postData = "";
+            String bearerToken="";
             String encodedCredentials = params[1] +":"+ params[2];
             byte[] encodedBytes = Base64.encode(encodedCredentials.getBytes(),Base64.NO_WRAP);
-            String auth = "Basic" + new String(encodedBytes);
+            String auth = "Basic " + new String(encodedBytes);
 
             HttpURLConnection httpConnection= null;
             try {
@@ -162,6 +111,9 @@ public class OAuthTwitterApplicationOnlyService {
                 }
                 bufferedReader.close();
                 postData = sb.toString();
+                JSONParser jp = new JSONParser();
+                org.json.simple.JSONObject json = (org.json.simple.JSONObject) jp.parse(postData);
+                bearerToken = (String)json.get("access_token");
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -170,7 +122,7 @@ public class OAuthTwitterApplicationOnlyService {
                     httpConnection.disconnect();
                 }
             }
-            return postData;
+            return bearerToken;
         }
 
         @Override
@@ -181,4 +133,40 @@ public class OAuthTwitterApplicationOnlyService {
         }
 
     }
+
+            /** Fetches the first tweet from a given user's timeline
+            private static String fetchTimelineTweet(String endPointUrl) throws IOException {
+                HttpsURLConnection connection = null;
+                try {
+
+                    URL url = new URL(endPointUrl);
+                    connection = (HttpsURLConnection) url.openConnection();
+                    connection.setDoOutput(true);
+                    connection.setDoInput(true);
+                    connection.setRequestMethod("GET");
+                    connection.setRequestProperty("Host", "api.twitter.com");
+                    connection.setRequestProperty("User-Agent", "Your Program Name");
+                    connection.setRequestProperty("Authorization", "Bearer " + bearer);
+                    connection.setUseCaches(false);
+
+                    // Parse the JSON response into a JSON mapped object to fetch fields from.
+
+                    JSONArray obj = (JSONArray)JSONValue.parse(readResponse(connection));
+                    if (obj != null) {
+                        String tweet = ((JSONObject)obj.get(0)).get("text").toString();
+
+                        return (tweet != null) ? tweet : "";
+                    }
+                    return new String();
+                }
+    catch (MalformedURLException e) {
+                    throw new IOException("Invalid endpoint URL specified.", e);
+                }
+    finally {
+                    if (connection != null) {
+                        connection.disconnect();
+                    }
+                }
+            }*/
+
 }

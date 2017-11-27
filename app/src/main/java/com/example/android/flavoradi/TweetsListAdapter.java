@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.example.android.flavoradi.Utilities.ColorUtils;
 import com.example.android.flavoradi.Utilities.OAuthTwitterApplicationOnlyService;
+import com.example.android.flavoradi.Utilities.TWITTERObject;
 import com.google.android.gms.location.places.PlaceLikelihood;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,41 +25,33 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by Babak on 11/5/2017.
  */
 
-class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
+public class TweetsListAdapter extends RecyclerView.Adapter<TweetsListAdapter.DetailViewHolder> {
 
-    private static final String TAG = MyAdapter.class.getSimpleName();
-    Intent tweetsPageActivity;
-
+    private static final String TAG = TweetsListAdapter.class.getSimpleName();
+    //Intent tweetsPageActivity;
     private static int viewHolderCount;
-    private PlaceLikelihoodBufferResponse mLikelyPlaces;
-    private String[] mLikelyPlaceNames;
-    private String[] mLikelyPlaceAddresses;
-    private String[] mLikelyPlaceAttributions;
-    private LatLng[] mLikelyPlaceLatLngs;
+    private String[] mTweetMessage;
+    //private String[] mLikelyPlaceNames;
+
 
     /**
-     * Constructor for MyAdapter that accepts a PlaceLikelihoodBufferResponse to display and the specification
+     * Constructor for TweetsListAdapter that accepts a Tweets object to display and the specification
      * for the ListItemClickListener.
      *
-     * @param likelyPlaces object that has nearby businesses information
+     * @param tweets object that has all related tweets
      */
-    public MyAdapter(PlaceLikelihoodBufferResponse likelyPlaces) {
-        mLikelyPlaceNames = new String[likelyPlaces.getCount()];
-        mLikelyPlaceAddresses = new String[likelyPlaces.getCount()];
-        mLikelyPlaceAttributions = new String[likelyPlaces.getCount()];
-        mLikelyPlaceLatLngs = new LatLng[likelyPlaces.getCount()];
+    public TweetsListAdapter(TWITTERObject tweets) {
+        mTweetMessage = new String[tweets.getCount()];
+
         viewHolderCount = 0;
-        mLikelyPlaces = likelyPlaces;
         int i =0;
-        for (PlaceLikelihood placeLikelihood : likelyPlaces) {
+        for (String tweet : tweets.getTweetBody()) {
             // Build a list of likely places to show the user.
-            mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
-            mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace().getAddress();
-            mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace().getAttributions();
-            mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
+            mTweetMessage[i] = tweet;
+
 
             i++;
-            if (i > (likelyPlaces.getCount() - 1)) {
+            if (i > (tweets.getCount() - 1)) {
                 break;
             }
     }
@@ -72,14 +65,14 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
      * @param viewGroup The ViewGroup that these ViewHolders are contained within.
      * @param viewType  If your RecyclerView has more than one type of item you
      *                  can use this viewType integer to provide a different layout. See
-     *                  {@link android.support.v7.widget.RecyclerView.Adapter#getItemViewType(int)}
+     *                  {@link RecyclerView.Adapter#getItemViewType(int)}
      *                  for more details.
      * @return A new DetailViewHolder that holds the View for each list item
      */
     @Override
     public DetailViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         Context context = viewGroup.getContext();
-        int layoutIdForListItem = R.layout.trending_list_item;
+        int layoutIdForListItem = R.layout.tweets_list_item;
         LayoutInflater inflater = LayoutInflater.from(context);
         boolean shouldAttachToParentImmediately = false;
 
@@ -105,39 +98,36 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mLikelyPlaces.getCount();
+        return mTweetMessage.length;
     }
 
 
     class DetailViewHolder extends RecyclerView.ViewHolder {
         private TextView listItemBusinessNameView;
         private TextView listItemBusinessAddressView;
-        //private static final String MY_PREFS_NAME = "main_preferences";
+        private static final String MY_PREFS_NAME = "main_preferences";
 
         public DetailViewHolder(View itemView) {
 
             super(itemView);
             final Context context = itemView.getContext();
-            final Intent tweetsPageActivityintent = new Intent(context , TweetsListActivity.class);
+            //final Intent tweetsPageActivityintent = new Intent(context , TweetsPageActivity.class);
             listItemBusinessNameView = (TextView) itemView.findViewById(R.id.tv_item_name);
-            listItemBusinessAddressView = (TextView)itemView.findViewById(R.id.tv_item_address);
+            //listItemBusinessAddressView = (TextView)itemView.findViewById(R.id.tv_item_address);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     int position = getAdapterPosition();
-                    Snackbar.make(v, "Click detected on item " + position,
+                    Snackbar.make(v, "Click detected on item " + mTweetMessage[position],
                             Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-                    tweetsPageActivityintent.putExtra("placeName", listItemBusinessNameView.getText().toString());
-                    //tweetsPageActivityintent.putExtra("token",bearerToken);
-                    context.startActivity(tweetsPageActivityintent);
                 }
             });
         }
         public void bind(int listIndex){
-            String str = mLikelyPlaceNames[listIndex];
+            String str = mTweetMessage[listIndex];
             listItemBusinessNameView.setText(str);
-            listItemBusinessAddressView.setText(mLikelyPlaceAddresses[listIndex]);
+            //listItemBusinessAddressView.setText(mTweetMessage[listIndex]);
         }
     }
 }

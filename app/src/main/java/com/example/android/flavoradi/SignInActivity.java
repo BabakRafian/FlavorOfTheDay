@@ -26,7 +26,7 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signin);
 
-        trendingListIntent = new Intent(this,TrendingListActivityBeta.class);
+        trendingListIntent = new Intent(this,TrendingListActivity.class);
 
         username = (EditText) findViewById(R.id.txt_username);
         password = (EditText) findViewById(R.id.txt_password);

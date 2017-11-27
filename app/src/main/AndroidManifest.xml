@@ -23,10 +23,9 @@
         <activity android:name=".SignInActivity" />
         <activity android:name=".SignUpActivity" />
         <activity android:name=".TrendingListActivity" />
-        <activity android:name=".TrendingListActivityBeta" />
-        <activity android:name=".TweetsPageActivity" />
         <activity android:name=".AddRestaurantActivity" />
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".TweetsListActivity" />
     </application>
 
 </manifest>

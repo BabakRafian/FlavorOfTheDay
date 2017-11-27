@@ -1,45 +1,51 @@
 package com.example.android.flavoradi;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.example.android.flavoradi.Utilities.TWITTERObject;
+import com.example.android.flavoradi.Utilities.TwitterHelper;
 
 /**
- * Created by Babak on 10/4/2017.
+ * Created by Babak on 11/5/2017.
  */
 
-public class TweetsPageActivity extends AppCompatActivity {
-
+public class TweetsListActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
-    RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter adapter;
+    private TweetsListAdapter mAdapter;
+    private RecyclerView mNumbersList;
+    private TextView test;
 
     Intent settingsIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tweets_page);
-        // Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        // setSupportActionBar(toolbar);
-        //recyclerView.setHasFixedSize(true);
+        setContentView(R.layout.activity_tweets_list);
 
-        recyclerView =
-                (RecyclerView) findViewById(R.id.recycler_view);
+        mNumbersList = (RecyclerView) findViewById(R.id.rv_numbers);
 
-        layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mNumbersList.setLayoutManager(layoutManager);
 
-        adapter = new TweetsAdapter(this.getBaseContext(),getIntent().getStringExtra("token"));
-        recyclerView.setAdapter(adapter);
+        TwitterHelper twitterObject = new TwitterHelper(this, getIntent().getStringExtra("placeName"));
+        TWITTERObject tObject = twitterObject.getTwitterObject();
+        mAdapter = new TweetsListAdapter(tObject);
+        mNumbersList.setAdapter(mAdapter);
+
     }
-
     @Override
     protected void onResume(){
         super.onResume();
@@ -51,6 +57,7 @@ public class TweetsPageActivity extends AppCompatActivity {
         Log.d(TAG, "Pausing");
         super.onPause();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
