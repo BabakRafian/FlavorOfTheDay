@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.flavoradi.Utilities.ColorUtils;
+import com.example.android.flavoradi.Utilities.GooglePlaceObject;
 import com.example.android.flavoradi.Utilities.OAuthTwitterApplicationOnlyService;
 import com.example.android.flavoradi.Utilities.TWITTERObject;
 import com.google.android.gms.location.places.PlaceLikelihood;

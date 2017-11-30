@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.example.android.flavoradi.Utilities.GooglePlaceObject;
 import com.example.android.flavoradi.Utilities.TWITTERObject;
 import com.example.android.flavoradi.Utilities.TwitterHelper;
 
@@ -39,10 +40,14 @@ public class TweetsListActivity extends AppCompatActivity {
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mNumbersList.setLayoutManager(layoutManager);
-
-        TwitterHelper twitterObject = new TwitterHelper(this, getIntent().getStringExtra("placeName"));
-        TWITTERObject tObject = twitterObject.getTwitterObject();
-        mAdapter = new TweetsListAdapter(tObject);
+        TWITTERObject twitterObject = null;
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle != null)
+            twitterObject = (TWITTERObject) bundle.getSerializable("tweets");
+        //String geocode = getIntent().getStringExtra("geocode");
+        //TwitterHelper twitterObject = new TwitterHelper(this, placeName, geocode);
+        //TWITTERObject tObject = new TWITTERObject(placeList);
+        mAdapter = new TweetsListAdapter(twitterObject);
         mNumbersList.setAdapter(mAdapter);
 
     }

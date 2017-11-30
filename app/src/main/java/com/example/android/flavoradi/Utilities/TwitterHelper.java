@@ -43,6 +43,7 @@ public class TwitterHelper {
     private String mPlaceName;
     private String mURL;
     private TWITTERObject tObject;
+    private String twitterResponse;
 
     final static String TWITTER_BASE_URL = "https://api.twitter.com/1.1/search/tweets.json";
     final static String PARAM_QUERY = "q";
@@ -51,24 +52,23 @@ public class TwitterHelper {
     private String mtweetText;
 
     //Constructor
-    public TwitterHelper(Context context, String placeName){
+    public TwitterHelper(Context context, String placeName, String geocode){
         mContext = context;
         mPlaceName = placeName;
-
-        //TODO add geocode for the tweets related to that geo
         Uri builtUri = Uri.parse(TWITTER_BASE_URL).buildUpon()
                 .appendQueryParameter(PARAM_QUERY, placeName)
-                //.appendQueryParameter(COUNT,"30")
+                .appendQueryParameter(GEOCODE,geocode)
                 .build();
         mURL = builtUri.toString();
         String bearerToken = getBearerToken(context);
-        String response = getTweets(mURL, bearerToken);
-        Log.d(TAG,response);
+        twitterResponse = getTweets(mURL, bearerToken);
+        Log.d(TAG,twitterResponse);
         //TODO I am working on this!!!
-        tObject = new TWITTERObject(response);
+        tObject = new TWITTERObject(twitterResponse);
     }
     public String getTweetText(){return mtweetText;}
     public TWITTERObject getTwitterObject(){return this.tObject;}
+    public String getTweetsJson(){return this.twitterResponse;}
     //gets the bearer Token from Teitter
     private static String getBearerToken(Context context){
 

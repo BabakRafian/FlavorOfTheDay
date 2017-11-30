@@ -2,22 +2,23 @@ package com.example.android.flavoradi;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.android.flavoradi.Utilities.ColorUtils;
-import com.example.android.flavoradi.Utilities.OAuthTwitterApplicationOnlyService;
-import com.google.android.gms.location.places.PlaceLikelihood;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
+import com.example.android.flavoradi.Utilities.GooglePlaceObject;
+import com.example.android.flavoradi.Utilities.TWITTERObject;
 import com.google.android.gms.maps.model.LatLng;
 
-import static android.content.Context.MODE_PRIVATE;
+import java.util.ArrayList;
 
 
 /**
@@ -27,14 +28,16 @@ import static android.content.Context.MODE_PRIVATE;
 class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
 
     private static final String TAG = MyAdapter.class.getSimpleName();
-    Intent tweetsPageActivity;
 
     private static int viewHolderCount;
-    private PlaceLikelihoodBufferResponse mLikelyPlaces;
+    //private PlaceLikelihoodBufferResponse mLikelyPlaces;
+    private ArrayList<Pair> mPlaceList;
     private String[] mLikelyPlaceNames;
     private String[] mLikelyPlaceAddresses;
     private String[] mLikelyPlaceAttributions;
     private LatLng[] mLikelyPlaceLatLngs;
+    //private GooglePlaceObject pO;
+
 
     /**
      * Constructor for MyAdapter that accepts a PlaceLikelihoodBufferResponse to display and the specification
@@ -42,26 +45,25 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
      *
      * @param likelyPlaces object that has nearby businesses information
      */
-    public MyAdapter(PlaceLikelihoodBufferResponse likelyPlaces) {
-        mLikelyPlaceNames = new String[likelyPlaces.getCount()];
-        mLikelyPlaceAddresses = new String[likelyPlaces.getCount()];
-        mLikelyPlaceAttributions = new String[likelyPlaces.getCount()];
-        mLikelyPlaceLatLngs = new LatLng[likelyPlaces.getCount()];
+    public MyAdapter(GooglePlaceObject likelyPlaces) {
+        mPlaceList = likelyPlaces.getPlaceList();
+        mLikelyPlaceNames = new String[mPlaceList.size()];
+        mLikelyPlaceAddresses = new String[mPlaceList.size()];
+        mLikelyPlaceAttributions = new String[mPlaceList.size()];
+        mLikelyPlaceLatLngs = new LatLng[mPlaceList.size()];
         viewHolderCount = 0;
-        mLikelyPlaces = likelyPlaces;
         int i =0;
-        for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-            // Build a list of likely places to show the user.
-            mLikelyPlaceNames[i] = (String) placeLikelihood.getPlace().getName();
-            mLikelyPlaceAddresses[i] = (String) placeLikelihood.getPlace().getAddress();
-            mLikelyPlaceAttributions[i] = (String) placeLikelihood.getPlace().getAttributions();
-            mLikelyPlaceLatLngs[i] = placeLikelihood.getPlace().getLatLng();
-
+        for (Pair tuple : mPlaceList) {
+            GooglePlaceObject.PlaceObject placeObject = (GooglePlaceObject.PlaceObject) tuple.first;
+            mLikelyPlaceNames[i] = placeObject.getPlaceName();
+            mLikelyPlaceAddresses[i] = placeObject.getPlaceAddress();
+            mLikelyPlaceAttributions[i] = placeObject.getPlaceAttribution();
+            mLikelyPlaceLatLngs[i] = placeObject.getPlaceLatlng();
             i++;
-            if (i > (likelyPlaces.getCount() - 1)) {
+            if (i > (mPlaceList.size()- 1)) {
                 break;
             }
-    }
+        }
     }
 
     /**
@@ -105,32 +107,57 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
 
     @Override
     public int getItemCount() {
-        return mLikelyPlaces.getCount();
+        return this.mPlaceList.size();
     }
 
 
     class DetailViewHolder extends RecyclerView.ViewHolder {
         private TextView listItemBusinessNameView;
         private TextView listItemBusinessAddressView;
+        private Button tweetListItemButton;
+        private Button addToFavoriteButton;
         //private static final String MY_PREFS_NAME = "main_preferences";
 
         public DetailViewHolder(View itemView) {
 
             super(itemView);
             final Context context = itemView.getContext();
-            final Intent tweetsPageActivityintent = new Intent(context , TweetsListActivity.class);
+            final Intent tweetsPageActivityintent = new Intent(context, TweetsListActivity.class);
             listItemBusinessNameView = (TextView) itemView.findViewById(R.id.tv_item_name);
-            listItemBusinessAddressView = (TextView)itemView.findViewById(R.id.tv_item_address);
+            listItemBusinessAddressView = (TextView) itemView.findViewById(R.id.tv_item_address);
+            tweetListItemButton = (Button) itemView.findViewById(R.id.view_tweets_button);
+            addToFavoriteButton = (Button) itemView.findViewById(R.id.add_to_favorite_button);
+            //View.OnClickListener onClickListener = null;
+            //tweetListItemButton.setOnClickListener(onClickListener);
+            tweetListItemButton.setOnClickListener(new View.OnClickListener() {
+                //itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
                     int position = getAdapterPosition();
-                    Snackbar.make(v, "Click detected on item " + position,
-                            Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
-                    tweetsPageActivityintent.putExtra("placeName", listItemBusinessNameView.getText().toString());
-                    //tweetsPageActivityintent.putExtra("token",bearerToken);
-                    context.startActivity(tweetsPageActivityintent);
+                    TWITTERObject twitterObject = (TWITTERObject) mPlaceList.get(position).second;
+                    if (twitterObject.getCount() != 0) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("tweets", twitterObject);
+                        tweetsPageActivityintent.putExtras(bundle);
+                        context.startActivity(tweetsPageActivityintent);
+                    } else {
+                        Snackbar.make(v, "No Tweets found for " + mLikelyPlaceNames[position],
+                                Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
+                    }
+                }
+            });
+
+            addToFavoriteButton.setOnClickListener(new View.OnClickListener() {
+                //itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    GooglePlaceObject.PlaceObject placeObject = (GooglePlaceObject.PlaceObject) mPlaceList.get(position).first;
+                    Snackbar.make(v, placeObject.getPlaceName()+" added to your favorite list",
+                                Snackbar.LENGTH_LONG)
+                                .setAction("Action", null).show();
                 }
             });
         }

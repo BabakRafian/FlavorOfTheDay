@@ -6,11 +6,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * Created by Babak on 11/26/2017.
  */
 
-public class TWITTERObject {
+public class TWITTERObject implements Serializable{
     private static final String TAG = TWITTERObject.class.getSimpleName();
     private String[] mTweetBody;
     private int mCount;

@@ -12,10 +12,13 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.ProgressBar;
 
+import com.example.android.flavoradi.Utilities.GooglePlaceObject;
 import com.google.android.gms.location.places.GeoDataClient;
 import com.google.android.gms.location.places.PlaceDetectionClient;
+import com.google.android.gms.location.places.PlaceFilter;
 import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -29,7 +32,7 @@ public class TrendingListActivity extends AppCompatActivity {
     private final String TAG = getClass().getSimpleName();
     private MyAdapter mAdapter;
     private RecyclerView mNumbersList;
-    private TextView test;
+    ProgressBar generateTrendingListPB;
 
     Intent settingsIntent;
 
@@ -44,6 +47,8 @@ public class TrendingListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trending_list);
+        generateTrendingListPB = (ProgressBar) findViewById(R.id.GENERATE_TRENDING_LIST_PB);
+        generateTrendingListPB.setVisibility(View.VISIBLE);
 
         mNumbersList = (RecyclerView) findViewById(R.id.rv_numbers);
 
@@ -57,12 +62,6 @@ public class TrendingListActivity extends AppCompatActivity {
         mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
 
         showNearbyPlace();
-        //TODO(1) Create a new class to get a google places object
-        //TODO(2) Create a new helper class to query the Twitter's API based on places
-        //TODO(3) Create a class to sort the places based on popularity on twitter
-        //TODO(4) Modify the adapter to create a recycler view based on the google place
-        // TODO object and twitter result object
-
     }
 
 
@@ -112,11 +111,22 @@ public class TrendingListActivity extends AppCompatActivity {
     private void showNearbyPlace() {
         getLocationPermission();
         if (mLocationPermissionGranted) {
+
+            //ArrayList<String> restrictToRestaurants = new ArrayList<>();
+            //restrictToRestaurants.add(String.valueOf(Place.TYPE_RESTAURANT));
+            //restrictToRestaurants.add(String.valueOf(Place.TYPE_CAFE));
+            //restrictToRestaurants.add(String.valueOf(Place.TYPE_FOOD));
+            //restrictToRestaurants.add(String.valueOf(Place.TYPE_GROCERY_OR_SUPERMARKET));
+
+            //TODO add google places filter to get only restaurants
+            //boolean isRestrictedToPlacesOpenNow = false;
+            //PlaceFilter placeFilter = new PlaceFilter(isRestrictedToPlacesOpenNow, restrictToRestaurants);
+            PlaceFilter placeFilter = new PlaceFilter();
             // Get the likely places - that is, the businesses and other points of interest that
             // are the best match for the device's current location.
             @SuppressWarnings("MissingPermission") final
             Task<PlaceLikelihoodBufferResponse> placeResult =
-                    mPlaceDetectionClient.getCurrentPlace(null);
+                    mPlaceDetectionClient.getCurrentPlace(placeFilter);
             placeResult.addOnCompleteListener
                     (new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
                         @Override
@@ -124,11 +134,14 @@ public class TrendingListActivity extends AppCompatActivity {
                             if (task.isSuccessful() && task.getResult() != null) {
                                 PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
 
-                                mAdapter = new MyAdapter(likelyPlaces);
+                                GooglePlaceObject placeList = new GooglePlaceObject(getApplicationContext(),likelyPlaces);
+
+                                mAdapter = new MyAdapter(placeList);
                                 mNumbersList.setAdapter(mAdapter);
 
                                 // Release the place likelihood buffer, to avoid memory leaks.
                                 likelyPlaces.release();
+                                generateTrendingListPB.setVisibility(View.INVISIBLE);
 
                             } else {
                                 Log.e(TAG, "Exception: %s", task.getException());
