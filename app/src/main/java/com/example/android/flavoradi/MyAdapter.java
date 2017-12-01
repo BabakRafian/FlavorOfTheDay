@@ -3,6 +3,7 @@ package com.example.android.flavoradi;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -142,6 +143,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
                 @Override
                 public void onClick(View v) {
 
+                    //clickedButton.setTextColor(Color.GRAY);
                     int position = getAdapterPosition();
                     TWITTERObject twitterObject = (TWITTERObject) mPlaceList.get(position).second;
                     if (twitterObject.getCount() != 0) {
