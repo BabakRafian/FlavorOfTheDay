@@ -15,8 +15,8 @@ import android.widget.TextView;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    Intent addRestaurantIntent, signOutIntent;
-    Button addRestaurantButton, signOutButton;
+    Intent addRestaurantIntent, signOutIntent, favoritesListIntent;
+    Button addRestaurantButton, signOutButton, favoritesListButton;
     private final String TAG = getClass().getSimpleName();
     TextView loggedInAs;
 
@@ -37,6 +37,10 @@ public class SettingsActivity extends AppCompatActivity {
         signOutIntent = new Intent(this,SignInActivity.class);
         signOutButton =(Button)findViewById(R.id.button_signout);
         signOutButton.setOnClickListener(onClickListener);
+
+        favoritesListIntent = new Intent(this, FavoritesListActivity.class);
+        favoritesListButton =(Button)findViewById(R.id.button_favorites);
+        favoritesListButton.setOnClickListener(onClickListener);
     }
 
     @Override
@@ -63,10 +67,13 @@ public class SettingsActivity extends AppCompatActivity {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://support.google.com/maps/answer/6320846?co=GENIE.Platform%3DAndroid&hl=en"));
                     startActivity(browserIntent);
                     break;
+                case R.id.button_favorites:
+                    startActivity(favoritesListIntent);
+                    break;
                 case R.id.button_signout:
                     editor.remove("currentUser");
                     editor.commit();
-                    
+
                     startActivity(signOutIntent);
                     break;
             }

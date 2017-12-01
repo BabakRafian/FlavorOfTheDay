@@ -64,7 +64,7 @@
             android:layout_alignParentStart="true"
             android:layout_alignTop="@+id/view_tweets_button"
             android:background="@android:color/transparent"
-            android:text="Add to favorite"
+            android:text="Add to favorites"
             android:textColor="#000"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.503"

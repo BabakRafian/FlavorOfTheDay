@@ -14,7 +14,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TAG = "DatabaseHelper";
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "flavoradi.db";
+    private static final String DATABASE_NAME = "flavoradi";
 
     private static final String TABLE_ACCOUNTS = "accounts";
     private static final String COLUMN_ACCT_ID = "_id";
@@ -31,6 +31,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_TOTAL_TWEETS = "total_tweets";
     private static final String COLUMN_NUM_UPDATED = "num_updated";
 
+    private static final String CREATE_ACCOUNTS = "CREATE TABLE " + TABLE_ACCOUNTS + "(" +
+                    COLUMN_ACCT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_USERNAME + " TEXT, " +
+                    COLUMN_EMAIL + " TEXT, " +
+                    COLUMN_PASSWORD + " TEXT" +
+                    ");";
+
+    private static final String CREATE_RESTAURANTS = "CREATE TABLE " + TABLE_RESTAURANTS + "(" +
+                    COLUMN_REST_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_RESTNAME + " TEXT, " +
+                    COLUMN_TOTAL_TWEETS + " INTEGER, " +
+                    COLUMN_NUM_UPDATED + " INTEGER" +
+                    ");";
+
+    private static final String CREATE_FAVORITES = "CREATE TABLE " + TABLE_FAVORITES + "(" +
+                    COLUMN_FAVE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_USERNAME + " TEXT, " +
+                    COLUMN_RESTNAME + " TEXT" +
+                    ");";
+    private static final String UPGRADE_ACCOUNTS = "DROP IF TABLE EXISTS " + TABLE_ACCOUNTS;
+    private static final String UPGRADE_RESTAURANTS = "DROP IF TABLE EXISTS " + TABLE_RESTAURANTS;
+    private static final String UPGRADE_FAVORITES = "DROP IF TABLE EXISTS " + TABLE_FAVORITES;
 
     public DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super (context, DATABASE_NAME, factory, DATABASE_VERSION);
@@ -38,36 +60,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = "CREATE TABLE " + TABLE_ACCOUNTS + "(" +
-                COLUMN_ACCT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_USERNAME + " TEXT, " +
-                COLUMN_EMAIL + " TEXT, " +
-                COLUMN_PASSWORD + " TEXT" +
-                ");";
-        db.execSQL(query);
-        query = "CREATE TABLE " + TABLE_RESTAURANTS + "(" +
-                COLUMN_REST_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_RESTNAME + " TEXT, " +
-                COLUMN_TOTAL_TWEETS + " INTEGER, " +
-                COLUMN_NUM_UPDATED + " INTEGER" +
-                ");";
-        db.execSQL(query);
-        query = "CREATE TABLE " + TABLE_FAVORITES + "(" +
-                COLUMN_FAVE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_USERNAME + " TEXT, " +
-                COLUMN_RESTNAME + " TEXT" +
-                ");";
-        db.execSQL(query);
+        db.execSQL(CREATE_ACCOUNTS);
+        db.execSQL(CREATE_RESTAURANTS);
+        db.execSQL(CREATE_FAVORITES);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        String upgradeTable = "DROP IF TABLE EXISTS " + TABLE_ACCOUNTS;
-        db.execSQL(upgradeTable);
-        upgradeTable = "DROP IF TABLE EXISTS " + TABLE_RESTAURANTS;
-        db.execSQL(upgradeTable);
-        upgradeTable = "DROP IF TABLE EXISTS " + TABLE_FAVORITES;
-        db.execSQL(upgradeTable);
+        db.execSQL(UPGRADE_ACCOUNTS);
+        db.execSQL(UPGRADE_RESTAURANTS);
+        db.execSQL(UPGRADE_FAVORITES);
         onCreate(db);
     }
 
@@ -123,6 +125,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    // Adds favorite to the database (favorites table)
+    public void addFavorite(String accountUsername, String restaurantName) {
+        ContentValues values = new ContentValues();
+        SQLiteDatabase db = getWritableDatabase();
+        values.put(COLUMN_USERNAME, accountUsername);
+        values.put(COLUMN_RESTNAME, restaurantName);
+        db.insert(TABLE_FAVORITES, null, values);
+        db.close();
+    }
+
     // Removes favorite from the database (favorites table)
     public void deleteFavorite(String accountUsername, String restaurantName) {
         SQLiteDatabase db = getWritableDatabase();
@@ -153,6 +165,55 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return result;
+    }
+
+    // Returns number of favorites associated with given account name
+    public int getNumberOfFavorites(String accountUsername) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {COLUMN_USERNAME, COLUMN_RESTNAME};
+        String selection = "username =?";
+        String[] selectionArgs = {accountUsername};
+
+        Cursor cursor = db.query(TABLE_FAVORITES, columns, selection, selectionArgs, null, null, null, null);
+        int numOfFavorites = cursor.getCount();
+
+        cursor.close();
+        db.close();
+        return numOfFavorites;
+    }
+
+    // Returns a String array of all restaurant names an account has favorited
+    public String[] getFavoritesList(String accountUsername) {
+        SQLiteDatabase db = getReadableDatabase();
+        String[] columns = {COLUMN_USERNAME, COLUMN_RESTNAME};
+        String selection = "username =?";
+        String[] selectionArgs = {accountUsername};
+
+        String[] restaurantNames;
+        // Get query and column indexes
+        Cursor cursor = db.query(TABLE_FAVORITES, columns, selection, selectionArgs, null, null, null, null);
+        int iUsername = cursor.getColumnIndex(COLUMN_USERNAME);
+        int iRestname = cursor.getColumnIndex(COLUMN_RESTNAME);
+        // Populate array
+        int rows = cursor.getCount();
+        cursor.moveToFirst();
+        if (rows > 0) {
+            restaurantNames = new String[rows];
+            int i = 0;
+            while (!cursor.isAfterLast()) {
+                restaurantNames[i] = cursor.getString(iRestname);
+                cursor.moveToNext();
+                i++;
+            }
+        }
+        else {
+            restaurantNames = new String[1];
+            restaurantNames[0] = "No Favorites";
+        }
+        // Conclude
+        cursor.close();
+        db.close();
+        return restaurantNames;
     }
 
     // Adds restaurant to the database (restaurant table)
@@ -227,6 +288,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         restaurant.increment_num_updated();
         deleteRestaurant(restaurant.get_restname());
         addRestaurant(restaurant);
+    }
+
+    // Returns a double corresponding to how much a restaurant is being talked about versus the norm
+    public double getTweetPopularityRatio(String restaurantName, int num_tweets) {
+        double ratio = (double) num_tweets;
+        Restaurant restaurant = getRestaurant(restaurantName);
+        ratio /= ((double)restaurant.get_total_tweets()/restaurant.get_num_updated());
+        return ratio;
     }
 
 }
