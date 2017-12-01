@@ -34,7 +34,7 @@ public class TrendingListActivity extends AppCompatActivity {
     private RecyclerView mNumbersList;
     ProgressBar generateTrendingListPB;
 
-    Intent settingsIntent;
+    Intent settingsIntent, favoritesListIntent;
 
     // The entry points to the MyPlaces API.
     protected GeoDataClient mGeoDataClient;
@@ -166,6 +166,7 @@ public class TrendingListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         settingsIntent = new Intent(this,SettingsActivity.class);
+        favoritesListIntent = new Intent(this,FavoritesListActivity.class);
 
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -175,6 +176,10 @@ public class TrendingListActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             startActivity(settingsIntent);
+
+            return true;
+        } else if (id == R.id.action_favoritesList) {
+            startActivity(favoritesListIntent);
 
             return true;
         }
