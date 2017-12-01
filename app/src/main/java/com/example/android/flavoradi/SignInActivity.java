@@ -1,7 +1,10 @@
 package com.example.android.flavoradi;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -51,8 +54,18 @@ public class SignInActivity extends AppCompatActivity {
                         SharedPreferences.Editor editor = preferences.edit();
                         editor.putString("currentUser", username.getText().toString());
                         editor.commit();
+                        // checking the Internet connection status
+                        ConnectivityManager cm =
+                                (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
+                        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+                        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+                        if(isConnected) {
                         startActivity(trendingListIntent);
+                        }else{
+                            //TODO put a proper message here
+                            toastMessage("No proper network connection!");
+                        }
                     } else {
                         toastMessage("Invalid login credentials.");
                     }

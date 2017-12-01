@@ -1,7 +1,10 @@
 package com.example.android.flavoradi;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -47,6 +50,7 @@ public class TrendingListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trending_list);
+
         generateTrendingListPB = (ProgressBar) findViewById(R.id.GENERATE_TRENDING_LIST_PB);
         generateTrendingListPB.setVisibility(View.VISIBLE);
 
@@ -55,13 +59,13 @@ public class TrendingListActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mNumbersList.setLayoutManager(layoutManager);
 
+
         // Construct a GeoDataClient.
         mGeoDataClient = Places.getGeoDataClient(this, null);
-
         // Construct a PlaceDetectionClient.
         mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
-
         showNearbyPlace();
+
     }
 
 

@@ -3,6 +3,8 @@ package com.example.android.flavoradi.Utilities;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -61,7 +63,7 @@ public class TwitterHelper {
                 .build();
         mURL = builtUri.toString();
         String bearerToken = getBearerToken(context);
-        twitterResponse = getTweets(mURL, bearerToken);
+        twitterResponse = getTweets(mURL, bearerToken,context);
         Log.d(TAG,twitterResponse);
         //TODO I am working on this!!!
         tObject = new TWITTERObject(twitterResponse);
@@ -91,17 +93,18 @@ public class TwitterHelper {
         return bearerToken;
     }
 
-    private static String getTweets(String url, String bearerToken){
+    private static String getTweets(String url, String bearerToken, Context context){
         String response= null;
-        try {
-            response = new SendPostRequest().execute(url,bearerToken).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
 
-        return response;
+            try {
+                response = new SendPostRequest().execute(url, bearerToken).get();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+
+            return response;
     }
 
     /**

@@ -134,39 +134,4 @@ public class OAuthTwitterApplicationOnlyService {
 
     }
 
-            /** Fetches the first tweet from a given user's timeline
-            private static String fetchTimelineTweet(String endPointUrl) throws IOException {
-                HttpsURLConnection connection = null;
-                try {
-
-                    URL url = new URL(endPointUrl);
-                    connection = (HttpsURLConnection) url.openConnection();
-                    connection.setDoOutput(true);
-                    connection.setDoInput(true);
-                    connection.setRequestMethod("GET");
-                    connection.setRequestProperty("Host", "api.twitter.com");
-                    connection.setRequestProperty("User-Agent", "Your Program Name");
-                    connection.setRequestProperty("Authorization", "Bearer " + bearer);
-                    connection.setUseCaches(false);
-
-                    // Parse the JSON response into a JSON mapped object to fetch fields from.
-
-                    JSONArray obj = (JSONArray)JSONValue.parse(readResponse(connection));
-                    if (obj != null) {
-                        String tweet = ((JSONObject)obj.get(0)).get("text").toString();
-
-                        return (tweet != null) ? tweet : "";
-                    }
-                    return new String();
-                }
-    catch (MalformedURLException e) {
-                    throw new IOException("Invalid endpoint URL specified.", e);
-                }
-    finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                }
-            }*/
-
 }
