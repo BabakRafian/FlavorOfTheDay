@@ -2,6 +2,7 @@ package com.example.android.flavoradi;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +20,8 @@ import com.example.android.flavoradi.Utilities.TWITTERObject;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+
+import static android.content.Context.MODE_PRIVATE;
 
 
 /**
@@ -127,6 +130,11 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
             listItemBusinessAddressView = (TextView) itemView.findViewById(R.id.tv_item_address);
             tweetListItemButton = (Button) itemView.findViewById(R.id.view_tweets_button);
             addToFavoriteButton = (Button) itemView.findViewById(R.id.add_to_favorite_button);
+
+            final DatabaseHelper mDatabaseHelper = new DatabaseHelper(context, null, null, 1);  //
+            SharedPreferences preferences = context.getSharedPreferences("FLAVORADI", MODE_PRIVATE);           //
+            final String user = preferences.getString("currentUser", "<user>");                         //
+
             //View.OnClickListener onClickListener = null;
             //tweetListItemButton.setOnClickListener(onClickListener);
             tweetListItemButton.setOnClickListener(new View.OnClickListener() {
@@ -158,6 +166,15 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
                     Snackbar.make(v, placeObject.getPlaceName()+" added to your favorite list",
                                 Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
+
+                    String restname = placeObject.getPlaceName();                                   //
+                    if (mDatabaseHelper.isFavorite(user, restname)) {                               //
+                        mDatabaseHelper.addFavorite(user, restname);                                //
+                        addToFavoriteButton.setText("Remove favorite");                             //
+                    } else {                                                                        //
+                        mDatabaseHelper.deleteFavorite(user, restname);                             //
+                        addToFavoriteButton.setText("Add to favorites");                            //
+                    }
                 }
             });
         }
