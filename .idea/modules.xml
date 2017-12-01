@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/FlavorOfTheDay.iml" filepath="$PROJECT_DIR$/FlavorOfTheDay.iml" />
       <module fileurl="file://C:\Users\Babak\Documents\myCollege\Autumn_2017\mobAppDev\Flavoradi-master\FlavorOfTheDay.iml" filepath="C:\Users\Babak\Documents\myCollege\Autumn_2017\mobAppDev\Flavoradi-master\FlavorOfTheDay.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Flavoradi-master.iml" filepath="$PROJECT_DIR$/Flavoradi-master.iml" />
       <module fileurl="file://G:\AndroidApps\FlavorOfTheDay\Flavoradi-master.iml" filepath="G:\AndroidApps\FlavorOfTheDay\Flavoradi-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>

@@ -170,7 +170,7 @@ class MyAdapter extends RecyclerView.Adapter<MyAdapter.DetailViewHolder> {
                                 .setAction("Action", null).show();
 
                     String restname = placeObject.getPlaceName();                                   //
-                    if (mDatabaseHelper.isFavorite(user, restname)) {                               //
+                    if (!mDatabaseHelper.isFavorite(user, restname)) {                               //
                         mDatabaseHelper.addFavorite(user, restname);                                //
                         addToFavoriteButton.setText("Remove favorite");                             //
                     } else {                                                                        //

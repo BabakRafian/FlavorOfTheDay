@@ -34,10 +34,10 @@ public class GooglePlaceObject implements Serializable{
         for (PlaceLikelihood placeLikelihood : likelyPlaces) {
             Log.d(TAG,"place ID:"+placeLikelihood.getPlace().getPlaceTypes().get(0));
             // Build a list of likely places to show the user.
-            for(int j =0; j<placeLikelihood.getPlace().getPlaceTypes().size(); j++){
-                int placeType = placeLikelihood.getPlace().getPlaceTypes().get(j);
-                if(placeType == Place.TYPE_RESTAURANT ||
-                        placeType==Place.TYPE_CAFE){
+            //for(int j =0; j<placeLikelihood.getPlace().getPlaceTypes().size(); j++){
+                //int placeType = placeLikelihood.getPlace().getPlaceTypes().get(j);
+                //if(placeType == Place.TYPE_RESTAURANT ||
+                        //placeType==Place.TYPE_CAFE){
                     PlaceObject placeObject = new PlaceObject();
                     String placeName = (String)placeLikelihood.getPlace().getName();
                     placeObject.setPlaceName(placeName);
@@ -51,8 +51,8 @@ public class GooglePlaceObject implements Serializable{
                     TWITTERObject tweetList = new TWITTERObject(response);
                     placeTuple = Pair.create(placeObject,tweetList);
                     placeList.add(placeTuple);
-                }
-            }
+                //}
+            //}
             i++;
             if (i > (likelyPlaces.getCount() - 1)) {
                 break;

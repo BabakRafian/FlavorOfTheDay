@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -36,6 +37,7 @@ public class TrendingListActivity extends AppCompatActivity {
     private MyAdapter mAdapter;
     private RecyclerView mNumbersList;
     ProgressBar generateTrendingListPB;
+    private AsyncTask mBackgroundTask;
 
     Intent settingsIntent;
 
@@ -59,12 +61,29 @@ public class TrendingListActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mNumbersList.setLayoutManager(layoutManager);
 
-
-        // Construct a GeoDataClient.
-        mGeoDataClient = Places.getGeoDataClient(this, null);
+        /** // Construct a GeoDataClient.
+        mGeoDataClient =Places.getGeoDataClient(this,null);
         // Construct a PlaceDetectionClient.
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(this, null);
-        showNearbyPlace();
+        mPlaceDetectionClient =Places.getPlaceDetectionClient(this,null);
+        showNearbyPlace();*/
+
+        mBackgroundTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                // Construct a GeoDataClient.
+                mGeoDataClient =Places.getGeoDataClient(TrendingListActivity.this,null);
+                // Construct a PlaceDetectionClient.
+                mPlaceDetectionClient =Places.getPlaceDetectionClient(TrendingListActivity.this,null);
+
+                return null;
+            }
+            @Override
+            protected void onPostExecute(Object o){
+                super.onPostExecute(o);
+                showNearbyPlace();
+        }
+        };
+        mBackgroundTask.execute();
 
     }
 
